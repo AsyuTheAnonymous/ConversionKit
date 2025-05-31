@@ -145,23 +145,38 @@
       <!-- Plain Text Tools -->
       <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 shadow-2xl mb-8">
         <h3 class="text-2xl font-bold mb-6 text-center">Plain Text Tools</h3>
-        <div class="grid md:grid-cols-2 gap-4 mb-8">
-          <button onclick="convertTextToUppercase()" aria-label="Convert Text to Uppercase"
-                  class="conversion-btn bg-gray-600/20 hover:bg-gray-600/40 border border-gray-500/50 rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
-            <div class="text-2xl mb-2">⬆️</div>
-            <div class="font-semibold">Text to Uppercase</div>
-          </button>
-          <button onclick="convertTextToLowercase()" aria-label="Convert Text to Lowercase"
-                  class="conversion-btn bg-gray-600/20 hover:bg-gray-600/40 border border-gray-500/50 rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
-            <div class="text-2xl mb-2">⬇️</div>
-            <div class="font-semibold">Text to Lowercase</div>
-          </button>
+        <div class="mb-6">
+          <label for="plainTextToolSelector" class="block text-gray-300 text-sm font-bold mb-2">Select Tool:</label>
+          <select id="plainTextToolSelector"
+                  class="w-full bg-white/5 border border-white/20 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 shadow-lg">
+            <option value="word-character-count">Word/Character Count</option>
+            <option value="remove-extra-spaces">Remove Extra Spaces</option>
+            <option value="capitalize-words">Capitalize First Letter of Each Word</option>
+            <option value="reverse-text">Reverse Text</option>
+            <option value="sort-lines">Sort Lines Alphabetically</option>
+            <option value="remove-duplicate-lines">Remove Duplicate Lines</option>
+            <option value="find-replace">Find and Replace</option>
+          </select>
+        </div>
+
+        <!-- Find and Replace Inputs (Always Visible) -->
+        <div id="findReplaceInputs" class="mb-6">
+          <label for="findInput" class="block text-gray-300 text-sm font-bold mb-2">Find:</label>
+          <input type="text" id="findInput" placeholder="Text to find"
+                 class="w-full bg-white/5 border border-white/20 rounded-xl p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <label for="replaceInput" class="block text-gray-300 text-sm font-bold mt-4 mb-2">Replace With:</label>
+          <input type="text" id="replaceInput" placeholder="Replace with"
+                 class="w-full bg-white/5 border border-white/20 rounded-xl p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
         <div class="mb-6">
           <label for="plainTextInput" class="block text-gray-300 text-sm font-bold mb-2">Enter Text:</label>
           <textarea id="plainTextInput" placeholder="Enter text here..." aria-label="Input for plain text tools"
                     class="w-full h-40 bg-white/5 border border-white/20 rounded-xl p-4 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
           <div class="flex justify-end mt-2">
+            <button onclick="processPlainTextTool()" aria-label="Process text with selected tool"
+                    class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105">
+              Process Text
+            </button>
             <button onclick="copyToClipboard('plainTextInput')" aria-label="Copy plain text input"
                     class="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105">
               Copy
