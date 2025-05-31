@@ -9,6 +9,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- Google API Client Library -->
+  <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+  <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-gray-100 min-h-screen">
   <!-- Header -->
@@ -94,10 +97,16 @@
           <p class="text-lg mb-4">Drag & drop your file here or click to browse</p>
           <p id="selectedFileName" class="text-sm text-blue-400 mb-4 hidden"></p>
           <input type="file" id="fileInput" class="hidden" accept=".pdf,.docx,.txt,.csv,.json,.html,.htm,.xml" multiple>
-          <button onclick="document.getElementById('fileInput').click()" aria-label="Select file for conversion"
-                  class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105">
-            Select File
-          </button>
+          <div class="flex flex-col sm:flex-row justify-center gap-4 mt-4">
+            <button onclick="document.getElementById('fileInput').click()" aria-label="Select file for conversion"
+                    class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105">
+              Select File
+            </button>
+            <button id="authorize_button" onclick="handleAuthClick()"
+                    class="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105">
+              Upload from Google Drive
+            </button>
+          </div>
         </div>
 
         <!-- Text Input Area (for text-to-pdf) -->
@@ -279,6 +288,6 @@
     </div>
   </footer>
 
-  <script src="script.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

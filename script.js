@@ -473,3 +473,237 @@ function copyToClipboard(elementId) {
     element.value = originalText;
   }, 1000);
 }
+
+// Google Drive Integration
+const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID'; // REPLACE WITH YOUR ACTUAL CLIENT ID
+const API_KEY = 'YOUR_GOOGLE_API_KEY'; // REPLACE WITH YOUR ACTUAL API KEY IF NEEDED FOR OTHER GOOGLE APIS
+const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'];
+const SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly';
+
+let tokenClient;
+let gapiInited = false;
+let gisInited = false;
+let selectedGoogleDriveFile = null; // To store the selected Google Drive file info
+
+function gapiLoaded() {
+  gapi.load('client:picker', initializeGapiClient);
+}
+
+async function initializeGapiClient() {
+  await gapi.client.init({
+    apiKey: API_KEY,
+    discoveryDocs: DISCOVERY_DOCS,
+  });
+  gapiInited = true;
+  maybeEnableButtons();
+}
+
+function gisLoaded() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: '', // Will be set in handleAuthClick
+  });
+  gisInited = true;
+  maybeEnableButtons();
+}
+
+function maybeEnableButtons() {
+  if (gapiInited && gisInited) {
+    document.getElementById('authorize_button').style.display = 'block';
+  }
+}
+
+function handleAuthClick() {
+  tokenClient.callback = async (resp) => {
+    if (resp.error !== undefined) {
+      throw (resp);
+    }
+    document.getElementById('authorize_button').textContent = 'Upload from Google Drive';
+    createPicker();
+  };
+
+  if (gapi.client.getToken() === null) {
+    // No token, initiate authorization flow.
+    tokenClient.requestAccessToken({ prompt: 'consent' });
+  } else {
+    // Token exists, refresh it.
+    tokenClient.requestAccessToken({ prompt: '' });
+  }
+}
+
+function createPicker() {
+  const view = new google.picker.View(google.picker.ViewId.DOCS);
+  view.setMimeTypes('application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/csv,application/json,text/html,application/xml');
+  
+  const picker = new google.picker.PickerBuilder()
+    .enableFeature(google.picker.Feature.NAV_EXPLORER_ENABLED)
+    .setAppId(CLIENT_ID.split('.')[0]) // App ID is usually the first part of client ID
+    .setOAuthToken(gapi.client.getToken().access_token)
+    .addView(view)
+    .setCallback(pickerCallback)
+    .build();
+  picker.setVisible(true);
+}
+
+async function pickerCallback(data) {
+  if (data[google.picker.Response.ACTION] === google.picker.Action.PICKED) {
+    const file = data[google.picker.Response.DOCUMENTS][0];
+    selectedGoogleDriveFile = {
+      id: file.id,
+      name: file.name,
+      mimeType: file.mimeType
+    };
+    
+    const fileNameDisplay = document.getElementById('selectedFileName');
+    fileNameDisplay.textContent = `Selected from Drive: ${file.name}`;
+    fileNameDisplay.classList.remove('hidden');
+    document.getElementById('convertBtn').disabled = false;
+    
+    // Clear local file input if a Drive file is selected
+    document.getElementById('fileInput').value = '';
+  }
+}
+
+async function downloadGoogleDriveFile(fileId, fileName, mimeType) {
+  const accessToken = gapi.client.getToken().access_token;
+  const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to download file from Google Drive: ${response.statusText}`);
+  }
+
+  const blob = await response.blob();
+  return new File([blob], fileName, { type: mimeType });
+}
+
+// Modify convertFile to handle Google Drive files
+const originalConvertFile = convertFile; // Store original for potential reuse or comparison
+
+convertFile = async function() {
+  if (selectedGoogleDriveFile) {
+    hideAllAreas();
+    const progressInterval = showProgress();
+    try {
+      const file = await downloadGoogleDriveFile(
+        selectedGoogleDriveFile.id,
+        selectedGoogleDriveFile.name,
+        selectedGoogleDriveFile.mimeType
+      );
+
+      let result;
+      if (currentConversionType === 'pdf-to-text') {
+        result = await convertPdfToText(file);
+      } else if (currentConversionType === 'docx-to-html') {
+        result = await convertDocxToHtml(file);
+      } else if (currentConversionType === 'csv-to-json') {
+        result = await convertCsvToJson(file);
+      } else if (currentConversionType === 'json-to-csv') {
+        result = await convertJsonToCsv(file);
+      } else if (currentConversionType === 'html-to-pdf') {
+        result = await convertHtmlToPdf(file);
+      } else if (currentConversionType === 'xml-to-json') {
+        result = await convertXmlToJson(file);
+      } else {
+        throw new Error('Unsupported conversion type for Google Drive file.');
+      }
+
+      clearInterval(progressInterval);
+      completeProgress();
+
+      const downloadSection = document.getElementById('downloadSection');
+      downloadSection.innerHTML = '';
+      downloadSection.innerHTML = `
+        <button onclick="downloadFile(window.lastConversionResult.blob, '${result.filename}')" 
+                class="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300">
+          Download ${result.filename}
+        </button>
+      `;
+      window.lastConversionResult = result;
+
+      dailyConversions++;
+      try {
+        localStorage.setItem('dailyConversions', dailyConversions.toString());
+      } catch (e) {
+        window.sessionConversions = dailyConversions;
+      }
+      document.getElementById('conversionsToday').textContent = dailyConversions;
+
+      selectedGoogleDriveFile = null; // Reset after conversion
+      document.getElementById('selectedFileName').classList.add('hidden');
+      document.getElementById('convertBtn').disabled = true;
+
+    } catch (error) {
+      clearInterval(progressInterval);
+      showError(error.message);
+    }
+  } else {
+    // If no Google Drive file is selected, use the original convertFile logic
+    originalConvertFile();
+  }
+};
+
+// Override file input change listener to clear Google Drive selection
+document.getElementById('fileInput').removeEventListener('change', function(e) {
+  if (e.target.files[0]) {
+    const fileName = e.target.files[0].name;
+    const fileNameDisplay = document.getElementById('selectedFileName');
+    fileNameDisplay.textContent = `Selected: ${fileName}`;
+    fileNameDisplay.classList.remove('hidden');
+    document.getElementById('convertBtn').disabled = false;
+  }
+});
+
+document.getElementById('fileInput').addEventListener('change', function(e) {
+  selectedGoogleDriveFile = null; // Clear Google Drive selection
+  if (e.target.files[0]) {
+    const fileName = e.target.files[0].name;
+    const fileNameDisplay = document.getElementById('selectedFileName');
+    fileNameDisplay.textContent = `Selected: ${fileName}`;
+    fileNameDisplay.classList.remove('hidden');
+    document.getElementById('convertBtn').disabled = false;
+  } else {
+    document.getElementById('selectedFileName').classList.add('hidden');
+    document.getElementById('convertBtn').disabled = true;
+  }
+});
+
+// Override drag and drop functionality to clear Google Drive selection
+uploadArea.removeEventListener('dragleave', function(e) {
+  e.preventDefault();
+  uploadArea.classList.remove('border-blue-400/70', 'bg-blue-900/20');
+  
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    document.getElementById('fileInput').files = files;
+    const fileName = files[0].name;
+    const fileNameDisplay = document.getElementById('selectedFileName');
+    fileNameDisplay.textContent = `Selected: ${fileName}`;
+    fileNameDisplay.classList.remove('hidden');
+    if (currentConversionType !== 'text-to-pdf') {
+      document.getElementById('convertBtn').disabled = false;
+    }
+  }
+});
+
+uploadArea.addEventListener('drop', function(e) {
+  e.preventDefault();
+  uploadArea.classList.remove('border-blue-400/70', 'bg-blue-900/20');
+  selectedGoogleDriveFile = null; // Clear Google Drive selection
+
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    document.getElementById('fileInput').files = files;
+    const fileName = files[0].name;
+    const fileNameDisplay = document.getElementById('selectedFileName');
+    fileNameDisplay.textContent = `Selected: ${fileName}`;
+    fileNameDisplay.classList.remove('hidden');
+    if (currentConversionType !== 'text-to-pdf') {
+      document.getElementById('convertBtn').disabled = false;
+    }
+  }
+});
