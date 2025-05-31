@@ -81,40 +81,10 @@
             <div class="text-2xl mb-2">📋</div>
             <div class="font-semibold">Markdown to HTML</div>
           </button>
-          <button onclick="setConversionType('base64-encode')" aria-label="Encode to Base64"
-                  class="conversion-btn bg-pink-600/20 hover:bg-pink-600/40 border border-pink-500/50 rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
-            <div class="text-2xl mb-2">🔐</div>
-            <div class="font-semibold">Base64 Encode</div>
-          </button>
-          <button onclick="setConversionType('base64-decode')" aria-label="Decode from Base64"
-                  class="conversion-btn bg-cyan-600/20 hover:bg-cyan-600/40 border border-cyan-500/50 rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
-            <div class="text-2xl mb-2">🔓</div>
-            <div class="font-semibold">Base64 Decode</div>
-          </button>
-          <button onclick="setConversionType('url-encode')" aria-label="URL Encode"
-                  class="conversion-btn bg-yellow-600/20 hover:bg-yellow-600/40 border border-yellow-500/50 rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
-            <div class="text-2xl mb-2">🔗</div>
-            <div class="font-semibold">URL Encode</div>
-          </button>
-          <button onclick="setConversionType('url-decode')" aria-label="URL Decode"
-                  class="conversion-btn bg-emerald-600/20 hover:bg-emerald-600/40 border border-emerald-500/50 rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
-            <div class="text-2xl mb-2">🔗</div>
-            <div class="font-semibold">URL Decode</div>
-          </button>
           <button onclick="setConversionType('xml-to-json')" aria-label="Convert XML to JSON"
                   class="conversion-btn bg-violet-600/20 hover:bg-violet-600/40 border border-violet-500/50 rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
             <div class="text-2xl mb-2">⚡</div>
             <div class="font-semibold">XML to JSON</div>
-          </button>
-          <button onclick="setConversionType('text-to-uppercase')" aria-label="Convert Text to Uppercase"
-                  class="conversion-btn bg-gray-600/20 hover:bg-gray-600/40 border border-gray-500/50 rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
-            <div class="text-2xl mb-2">⬆️</div>
-            <div class="font-semibold">Text to Uppercase</div>
-          </button>
-          <button onclick="setConversionType('text-to-lowercase')" aria-label="Convert Text to Lowercase"
-                  class="conversion-btn bg-gray-600/20 hover:bg-gray-600/40 border border-gray-500/50 rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
-            <div class="text-2xl mb-2">⬇️</div>
-            <div class="font-semibold">Text to Lowercase</div>
           </button>
         </div>
 
@@ -168,6 +138,45 @@
             <div class="text-2xl mb-2">❌</div>
             <p class="text-lg font-semibold mb-2">Conversion Failed</p>
             <p id="errorMessage" class="text-gray-300"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plain Text Tools -->
+      <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 shadow-2xl mb-8">
+        <h3 class="text-2xl font-bold mb-6 text-center">Plain Text Tools</h3>
+        <div class="grid md:grid-cols-2 gap-4 mb-8">
+          <button onclick="convertTextToUppercase()" aria-label="Convert Text to Uppercase"
+                  class="conversion-btn bg-gray-600/20 hover:bg-gray-600/40 border border-gray-500/50 rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
+            <div class="text-2xl mb-2">⬆️</div>
+            <div class="font-semibold">Text to Uppercase</div>
+          </button>
+          <button onclick="convertTextToLowercase()" aria-label="Convert Text to Lowercase"
+                  class="conversion-btn bg-gray-600/20 hover:bg-gray-600/40 border border-gray-500/50 rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
+            <div class="text-2xl mb-2">⬇️</div>
+            <div class="font-semibold">Text to Lowercase</div>
+          </button>
+        </div>
+        <div class="mb-6">
+          <label for="plainTextInput" class="block text-gray-300 text-sm font-bold mb-2">Enter Text:</label>
+          <textarea id="plainTextInput" placeholder="Enter text here..." aria-label="Input for plain text tools"
+                    class="w-full h-40 bg-white/5 border border-white/20 rounded-xl p-4 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+          <div class="flex justify-end mt-2">
+            <button onclick="copyToClipboard('plainTextInput')" aria-label="Copy plain text input"
+                    class="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105">
+              Copy
+            </button>
+          </div>
+        </div>
+        <div class="mb-6">
+          <label for="plainTextOutput" class="block text-gray-300 text-sm font-bold mb-2">Result:</label>
+          <textarea id="plainTextOutput" readonly aria-label="Output for plain text tools"
+                    class="w-full h-40 bg-white/5 border border-white/20 rounded-xl p-4 text-white placeholder-gray-400 resize-none focus:outline-none mt-2"></textarea>
+          <div class="flex justify-end mt-2">
+            <button onclick="copyToClipboard('plainTextOutput')" aria-label="Copy plain text output"
+                    class="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105">
+              Copy
+            </button>
           </div>
         </div>
       </div>
@@ -281,8 +290,7 @@
       // Reset areas
       hideAllAreas();
       
-      if (type === 'text-to-pdf' || type === 'base64-encode' || type === 'base64-decode' || 
-          type === 'url-encode' || type === 'url-decode' || type === 'markdown-to-html' ||
+      if (type === 'text-to-pdf' || type === 'markdown-to-html' ||
           type === 'csv-to-json' || type === 'json-to-csv' || type === 'xml-to-json' || type === 'html-to-pdf') {
         textInputArea.classList.remove('hidden');
         fileInput.accept = ''; // Clear file input accept for text-based conversions
@@ -292,14 +300,6 @@
         const textInput = document.getElementById('textInput');
         if (type === 'text-to-pdf') {
           textInput.placeholder = 'Enter your text here...';
-        } else if (type === 'base64-encode') {
-          textInput.placeholder = 'Enter text to encode to Base64...';
-        } else if (type === 'base64-decode') {
-          textInput.placeholder = 'Enter Base64 string to decode...';
-        } else if (type === 'url-encode') {
-          textInput.placeholder = 'Enter text/URL to encode...';
-        } else if (type === 'url-decode') {
-          textInput.placeholder = 'Enter encoded URL to decode...';
         } else if (type === 'markdown-to-html') {
           textInput.placeholder = 'Enter Markdown text here...';
         } else if (type === 'csv-to-json') {
@@ -405,7 +405,7 @@
         const textInput = document.getElementById('textInput');
         let results = [];
 
-        if (currentConversionType.includes('text-to-') || currentConversionType.includes('base64-') || currentConversionType.includes('url-') || currentConversionType === 'markdown-to-html') {
+        if (currentConversionType.includes('text-to-') || currentConversionType === 'markdown-to-html') {
           // Handle text-based conversions
           if (!textInput.value.trim()) {
             throw new Error('Please enter some text to convert.');
@@ -413,20 +413,8 @@
           let result;
           if (currentConversionType === 'text-to-pdf') {
             result = await convertTextToPdf();
-          } else if (currentConversionType === 'base64-encode') {
-            result = await convertBase64Encode();
-          } else if (currentConversionType === 'base64-decode') {
-            result = await convertBase64Decode();
-          } else if (currentConversionType === 'url-encode') {
-            result = await convertUrlEncode();
-          } else if (currentConversionType === 'url-decode') {
-            result = await convertUrlDecode();
           } else if (currentConversionType === 'markdown-to-html') {
             result = await convertMarkdownToHtml();
-          } else if (currentConversionType === 'text-to-uppercase') {
-            result = await convertTextToUppercase();
-          } else if (currentConversionType === 'text-to-lowercase') {
-            result = await convertTextToLowercase();
           }
           results.push(result);
         } else {
@@ -636,8 +624,7 @@
     // Text input handler
     document.getElementById('textInput').addEventListener('input', function(e) {
       const convertBtn = document.getElementById('convertBtn');
-      const textBasedConversions = ['text-to-pdf', 'base64-encode', 'base64-decode', 
-                                   'url-encode', 'url-decode', 'markdown-to-html'];
+      const textBasedConversions = ['text-to-pdf', 'markdown-to-html'];
       if (textBasedConversions.includes(currentConversionType)) {
         convertBtn.disabled = !e.target.value.trim();
       }
@@ -667,7 +654,41 @@
         }
       }
     });
+  </script>
 
+  <script>
+    // Plain Text Tools functions
+    document.getElementById('plainTextInput').addEventListener('input', function(e) {
+      // No specific button to enable/disable here, as actions are direct
+    });
+
+    async function convertTextToUppercase() {
+      const textInput = document.getElementById('plainTextInput');
+      const textOutput = document.getElementById('plainTextOutput');
+      const text = textInput.value.trim();
+      
+      if (!text) {
+        textOutput.value = 'Please enter text to convert.';
+        return;
+      }
+
+      textOutput.value = text.toUpperCase();
+    }
+
+    async function convertTextToLowercase() {
+      const textInput = document.getElementById('plainTextInput');
+      const textOutput = document.getElementById('plainTextOutput');
+      const text = textInput.value.trim();
+      
+      if (!text) {
+        textOutput.value = 'Please enter text to convert.';
+        return;
+      }
+
+      textOutput.value = text.toLowerCase();
+    }
+
+    // Encoding/Decoding Tools functions
     function urlEncode() {
       const input = document.getElementById('urlEncodeInput').value;
       const output = document.getElementById('urlEncodeOutput');
@@ -692,365 +713,6 @@
         element.value = originalText;
       }, 1000);
     }
-
-    async function convertCsvToJson(file) {
-      if (!file) {
-        throw new Error('Please select a CSV file.');
-      }
-
-      const text = await file.text();
-      
-      // Simple CSV parser
-      const lines = text.split('\n').filter(line => line.trim());
-      if (lines.length === 0) throw new Error('CSV file is empty');
-      
-      const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-      const data = [];
-      
-      for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-        if (values.length === headers.length) {
-          const row = {};
-          headers.forEach((header, index) => {
-            row[header] = values[index];
-          });
-          data.push(row);
-        }
-      }
-      
-      const jsonString = JSON.stringify(data, null, 2);
-      const blob = new Blob([jsonString], { type: 'application/json' });
-      const filename = file.name.replace('.csv', '.json');
-      
-      return { blob, filename };
-    }
-
-    async function convertJsonToCsv(file) {
-      if (!file) {
-        throw new Error('Please select a JSON file.');
-      }
-
-      const text = await file.text();
-      
-      try {
-        const data = JSON.parse(text);
-        if (!Array.isArray(data) || data.length === 0) {
-          throw new Error('JSON must be an array of objects');
-        }
-        
-        // Get headers from first object
-        const headers = Object.keys(data[0]);
-        let csv = headers.join(',') + '\n';
-        
-        // Add data rows
-        data.forEach(row => {
-          const values = headers.map(header => {
-            const value = row[header] || '';
-            return typeof value === 'string' && value.includes(',') ? `"${value}"` : value;
-          });
-          csv += values.join(',') + '\n';
-        });
-        
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const filename = file.name.replace('.json', '.csv');
-        
-        return { blob, filename };
-      } catch (error) {
-        throw new Error('Invalid JSON format');
-      }
-    }
-
-    async function convertHtmlToPdf(file) {
-      if (!file) {
-        throw new Error('Please select an HTML file.');
-      }
-
-      const htmlContent = await file.text();
-      
-      // Create PDF using PDF-lib
-      const pdfDoc = await PDFLib.PDFDocument.create();
-      const page = pdfDoc.addPage([595.28, 841.89]); // A4 size
-      
-      // Strip HTML tags and extract text content
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = htmlContent;
-      const textContent = tempDiv.textContent || tempDiv.innerText || '';
-      
-      const fontSize = 12;
-      const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
-      
-      // Split text into lines that fit on the page
-      const maxWidth = 500;
-      const lines = [];
-      const words = textContent.split(' ');
-      let currentLine = '';
-      
-      for (const word of words) {
-        const testLine = currentLine + (currentLine ? ' ' : '') + word;
-        const width = font.widthOfTextAtSize(testLine, fontSize);
-        
-        if (width > maxWidth && currentLine) {
-          lines.push(currentLine);
-          currentLine = word;
-        } else {
-          currentLine = testLine;
-        }
-      }
-      if (currentLine) lines.push(currentLine);
-      
-      // Add text to PDF
-      let yPosition = 750;
-      for (const line of lines) {
-        if (yPosition < 50) {
-          break; // Simple version - just fill first page
-        }
-        page.drawText(line, {
-          x: 50,
-          y: yPosition,
-          size: fontSize,
-          font: font,
-        });
-        yPosition -= 20;
-      }
-      
-      const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      const filename = file.name.replace(/\.(html|htm)$/, '.pdf');
-      
-      return { blob, filename };
-    }
-
-    async function convertMarkdownToHtml() {
-      const textInput = document.getElementById('textInput');
-      const markdown = textInput.value.trim();
-      
-      if (!markdown) {
-        throw new Error('Please enter Markdown text to convert.');
-      }
-
-      // Simple Markdown to HTML converter
-      let html = markdown
-        // Headers
-        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-        // Bold
-        .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
-        .replace(/__(.*?)__/gim, '<strong>$1</strong>')
-        // Italic
-        .replace(/\*(.*)\*/gim, '<em>$1</em>')
-        .replace(/_(.*?)_/gim, '<em>$1</em>')
-        // Code
-        .replace(/`(.*?)`/gim, '<code>$1</code>')
-        // Links
-        .replace(/\[([^\]]*)\]\(([^\)]*)\)/gim, '<a href="$2">$1</a>')
-        // Line breaks
-        .replace(/\n/gim, '<br>');
-
-      const fullHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="UTF-8">
-          <title>Converted from Markdown</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
-            h1, h2, h3 { color: #333; }
-            code { background: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
-            a { color: #0066cc; }
-          </style>
-        </head>
-        <body>
-          ${html}
-        </body>
-        </html>
-      `;
-      
-      const blob = new Blob([fullHtml], { type: 'text/html' });
-      const filename = 'converted-markdown.html';
-      
-      return { blob, filename };
-    }
-
-    async function convertBase64Encode() {
-      const textInput = document.getElementById('textInput');
-      const text = textInput.value.trim();
-      
-      if (!text) {
-        throw new Error('Please enter text to encode.');
-      }
-
-      const encoded = btoa(unescape(encodeURIComponent(text)));
-      const blob = new Blob([encoded], { type: 'text/plain' });
-      const filename = 'base64-encoded.txt';
-      
-      return { blob, filename };
-    }
-
-    async function convertBase64Decode() {
-      const textInput = document.getElementById('textInput');
-      const base64Text = textInput.value.trim();
-      
-      if (!base64Text) {
-        throw new Error('Please enter Base64 text to decode.');
-      }
-
-      try {
-        const decoded = decodeURIComponent(escape(atob(base64Text)));
-        const blob = new Blob([decoded], { type: 'text/plain' });
-        const filename = 'base64-decoded.txt';
-        
-        return { blob, filename };
-      } catch (error) {
-        throw new Error('Invalid Base64 format');
-      }
-    }
-
-    async function convertUrlEncode() {
-      const textInput = document.getElementById('textInput');
-      const text = textInput.value.trim();
-      
-      if (!text) {
-        throw new Error('Please enter text to URL encode.');
-      }
-
-      const encoded = encodeURIComponent(text);
-      const blob = new Blob([encoded], { type: 'text/plain' });
-      const filename = 'url-encoded.txt';
-      
-      return { blob, filename };
-    }
-
-    async function convertUrlDecode() {
-      const textInput = document.getElementById('textInput');
-      const encodedText = textInput.value.trim();
-      
-      if (!encodedText) {
-        throw new Error('Please enter URL encoded text to decode.');
-      }
-
-      try {
-        const decoded = decodeURIComponent(encodedText);
-        const blob = new Blob([decoded], { type: 'text/plain' });
-        const filename = 'url-decoded.txt';
-        
-        return { blob, filename };
-      } catch (error) {
-        throw new Error('Invalid URL encoded format');
-      }
-    }
-
-    async function convertXmlToJson(file) {
-      if (!file) {
-        throw new Error('Please select an XML file.');
-      }
-
-      const xmlText = await file.text();
-      
-      try {
-        // Simple XML to JSON converter
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-        
-        function xmlToJson(xml) {
-          const obj = {};
-          
-          if (xml.hasChildNodes()) {
-            for (let i = 0; i < xml.childNodes.length; i++) {
-              const item = xml.childNodes.item(i);
-              const nodeName = item.nodeName;
-              
-              if (typeof obj[nodeName] === 'undefined') {
-                obj[nodeName] = xmlToJson(item);
-              } else {
-                if (typeof obj[nodeName].push === 'undefined') {
-                  const old = obj[nodeName];
-                  obj[nodeName] = [];
-                  obj[nodeName].push(old);
-                }
-                obj[nodeName].push(xmlToJson(item));
-              }
-            }
-          } else {
-            obj.textContent = xml.textContent;
-          }
-          
-          return obj;
-        }
-        
-        const result = xmlToJson(xmlDoc);
-        const jsonString = JSON.stringify(result, null, 2);
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const filename = file.name.replace('.xml', '.json');
-        
-        return { blob, filename };
-      } catch (error) {
-        throw new Error('Invalid XML format');
-      }
-    }
-
-    async function convertTextToUppercase() {
-      const textInput = document.getElementById('textInput');
-      const text = textInput.value.trim();
-      
-      if (!text) {
-        throw new Error('Please enter text to convert.');
-      }
-
-      const uppercasedText = text.toUpperCase();
-      const blob = new Blob([uppercasedText], { type: 'text/plain' });
-      const filename = 'uppercased-text.txt';
-      
-      return { blob, filename };
-    }
-
-    async function convertTextToLowercase() {
-      const textInput = document.getElementById('textInput');
-      const text = textInput.value.trim();
-      
-      if (!text) {
-        throw new Error('Please enter text to convert.');
-      }
-
-      const lowercasedText = text.toLowerCase();
-      const blob = new Blob([lowercasedText], { type: 'text/plain' });
-      const filename = 'lowercased-text.txt';
-      
-      return { blob, filename };
-    }
-
-    // Theme toggle functionality
-    const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
-
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      body.classList.add(savedTheme);
-      if (savedTheme === 'light-mode') {
-        themeToggle.textContent = '🌙';
-      } else {
-        themeToggle.textContent = '☀️';
-      }
-    } else {
-      // Default to dark mode if no preference
-      body.classList.add('dark-mode');
-      themeToggle.textContent = '☀️';
-    }
-
-    themeToggle.addEventListener('click', () => {
-      if (body.classList.contains('dark-mode')) {
-        body.classList.remove('dark-mode');
-        body.classList.add('light-mode');
-        themeToggle.textContent = '🌙';
-        localStorage.setItem('theme', 'light-mode');
-      } else {
-        body.classList.remove('light-mode');
-        body.classList.add('dark-mode');
-        themeToggle.textContent = '☀️';
-        localStorage.setItem('theme', 'dark-mode');
-      }
-    });
   </script>
 </body>
 </html>
