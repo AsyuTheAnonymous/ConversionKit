@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DocuConvert - Free Document Converter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-gray-100 min-h-screen">
+  <!-- Header -->
+  <header class="bg-black/20 backdrop-blur-sm border-b border-white/10">
+    <nav class="container mx-auto px-6 py-4">
+      <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          DocuConvert
+        </h1>
+        <div class="hidden md:flex space-x-6">
+          <a href="#features" class="hover:text-blue-400 transition duration-300">Features</a>
+          <a href="#pricing" class="hover:text-blue-400 transition duration-300">Pricing</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="container mx-auto px-6 py-12 text-center">
+    <h2 class="text-5xl font-bold mb-6 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+      Convert Documents Instantly
+    </h2>
+    <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+      Transform your files between formats in seconds. No uploads, completely private, and lightning fast.
+    </p>
+  </section>
+
+  <!-- Converter Tool -->
+  <main class="container mx-auto px-6 pb-12">
+    <div class="max-w-4xl mx-auto">
+      <!-- Conversion Type Selector -->
+      <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 shadow-2xl mb-8">
+        <h3 class="text-2xl font-bold mb-6 text-center">Choose Conversion Type</h3>
+        <div class="grid md:grid-cols-3 gap-4 mb-8">
+          <button onclick="setConversionType('pdf-to-text')" 
+                  class="conversion-btn bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/50 rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
+            <div class="text-2xl mb-2">📄</div>
+            <div class="font-semibold">PDF to Text</div>
+          </button>
+          <button onclick="setConversionType('docx-to-html')" 
+                  class="conversion-btn bg-green-600/20 hover:bg-green-600/40 border border-green-500/50 rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
+            <div class="text-2xl mb-2">📝</div>
+            <div class="font-semibold">DOCX to HTML</div>
+          </button>
+          <button onclick="setConversionType('text-to-pdf')" 
+                  class="conversion-btn bg-purple-600/20 hover:bg-purple-600/40 border border-purple-500/50 rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
+            <div class="text-2xl mb-2">📋</div>
+            <div class="font-semibold">Text to PDF</div>
+          </button>
+        </div>
+
+        <!-- File Upload Area -->
+        <div id="uploadArea" class="border-2 border-dashed border-gray-500/50 rounded-xl p-8 text-center transition-all duration-300 hover:border-blue-400/50 hover:bg-blue-900/10">
+          <div class="text-4xl mb-4">📁</div>
+          <p class="text-lg mb-4">Drag & drop your file here or click to browse</p>
+          <p id="selectedFileName" class="text-sm text-blue-400 mb-4 hidden"></p>
+          <input type="file" id="fileInput" class="hidden" accept=".pdf,.docx,.txt">
+          <button onclick="document.getElementById('fileInput').click()" 
+                  class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105">
+            Select File
+          </button>
+        </div>
+
+        <!-- Text Input Area (for text-to-pdf) -->
+        <div id="textInputArea" class="hidden mt-6">
+          <textarea id="textInput" placeholder="Enter your text here..." 
+                    class="w-full h-40 bg-white/5 border border-white/20 rounded-xl p-4 text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+
+        <!-- Convert Button -->
+        <div class="text-center mt-6">
+          <button id="convertBtn" onclick="convertFile()" 
+                  class="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled>
+            Convert File
+          </button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="progressArea" class="hidden mt-6">
+          <div class="bg-gray-700 rounded-full h-3 overflow-hidden">
+            <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-purple-500 h-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <p id="progressText" class="text-center mt-2 text-gray-300">Processing...</p>
+        </div>
+
+        <!-- Result Area -->
+        <div id="resultArea" class="hidden mt-6 p-6 bg-green-900/20 border border-green-500/50 rounded-xl">
+          <div class="text-center">
+            <div class="text-2xl mb-2">✅</div>
+            <p class="text-lg font-semibold mb-4">Conversion Complete!</p>
+            <div id="downloadSection"></div>
+          </div>
+        </div>
+
+        <!-- Error Area -->
+        <div id="errorArea" class="hidden mt-6 p-6 bg-red-900/20 border border-red-500/50 rounded-xl">
+          <div class="text-center">
+            <div class="text-2xl mb-2">❌</div>
+            <p class="text-lg font-semibold mb-2">Conversion Failed</p>
+            <p id="errorMessage" class="text-gray-300"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Usage Stats -->
+      <div class="grid md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-6 text-center border border-white/10">
+          <div class="text-3xl font-bold text-blue-400" id="conversionsToday">0</div>
+          <div class="text-gray-300">Conversions Today</div>
+        </div>
+        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-6 text-center border border-white/10">
+          <div class="text-3xl font-bold text-green-400">100%</div>
+          <div class="text-gray-300">Privacy Protected</div>
+        </div>
+        <div class="bg-white/5 backdrop-blur-sm rounded-xl p-6 text-center border border-white/10">
+          <div class="text-3xl font-bold text-purple-400">Free</div>
+          <div class="text-gray-300">No Registration</div>
+        </div>
+      </div>
+
+      <!-- Ad Space -->
+      <div class="bg-white/5 backdrop-blur-sm rounded-xl p-8 text-center border border-white/10">
+        <p class="text-gray-400 mb-4">This service is free thanks to our sponsors</p>
+        <div class="h-32 bg-gray-800/50 rounded-lg flex items-center justify-center border border-gray-600/50">
+          <span class="text-gray-500">Google AdSense Ad Space</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-black/20 backdrop-blur-sm border-t border-white/10 py-8 mt-12">
+    <div class="container mx-auto px-6 text-center">
+      <p class="text-gray-400">&copy; 2025 DocuConvert. All files processed locally for maximum privacy.</p>
+    </div>
+  </footer>
+
+  <script>
+    let currentConversionType = null;
+    let dailyConversions = 0;
+    
+    // Try to get from localStorage, but handle if it's not available
+    try {
+      dailyConversions = parseInt(localStorage.getItem('dailyConversions') || '0');
+    } catch (e) {
+      // localStorage not available (sandboxed environment), use session variable
+      dailyConversions = window.sessionConversions || 0;
+    }
+    
+    // Update counter display
+    document.getElementById('conversionsToday').textContent = dailyConversions;
+
+    function setConversionType(type) {
+      currentConversionType = type;
+      
+      // Update UI based on conversion type
+      const fileInput = document.getElementById('fileInput');
+      const textInputArea = document.getElementById('textInputArea');
+      const convertBtn = document.getElementById('convertBtn');
+      
+      // Reset areas
+      hideAllAreas();
+      
+      if (type === 'text-to-pdf') {
+        textInputArea.classList.remove('hidden');
+        fileInput.accept = '';
+        convertBtn.disabled = false;
+      } else {
+        textInputArea.classList.add('hidden');
+        if (type === 'pdf-to-text') {
+          fileInput.accept = '.pdf';
+        } else if (type === 'docx-to-html') {
+          fileInput.accept = '.docx';
+        }
+        convertBtn.disabled = true;
+      }
+      
+      // Update button styles
+      document.querySelectorAll('.conversion-btn').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-blue-400');
+      });
+      event.target.closest('.conversion-btn').classList.add('ring-2', 'ring-blue-400');
+    }
+
+    function hideAllAreas() {
+      document.getElementById('progressArea').classList.add('hidden');
+      document.getElementById('resultArea').classList.add('hidden');
+      document.getElementById('errorArea').classList.add('hidden');
+    }
+
+    function showProgress() {
+      document.getElementById('progressArea').classList.remove('hidden');
+      let progress = 0;
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      
+      const interval = setInterval(() => {
+        progress += Math.random() * 30;
+        if (progress > 90) progress = 90;
+        progressBar.style.width = progress + '%';
+        progressText.textContent = `Processing... ${Math.round(progress)}%`;
+        
+        if (progress >= 90) {
+          clearInterval(interval);
+        }
+      }, 200);
+      
+      return interval;
+    }
+
+    function completeProgress() {
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      progressBar.style.width = '100%';
+      progressText.textContent = 'Complete!';
+      
+      setTimeout(() => {
+        document.getElementById('progressArea').classList.add('hidden');
+        document.getElementById('resultArea').classList.remove('hidden');
+      }, 500);
+    }
+
+    function showError(message) {
+      document.getElementById('progressArea').classList.add('hidden');
+      document.getElementById('errorMessage').textContent = message;
+      document.getElementById('errorArea').classList.remove('hidden');
+    }
+
+    function downloadFile(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function convertFile() {
+      if (!currentConversionType) {
+        showError('Please select a conversion type first.');
+        return;
+      }
+
+      hideAllAreas();
+      const progressInterval = showProgress();
+
+      try {
+        let result;
+        
+        if (currentConversionType === 'pdf-to-text') {
+          result = await convertPdfToText();
+        } else if (currentConversionType === 'docx-to-html') {
+          result = await convertDocxToHtml();
+        } else if (currentConversionType === 'text-to-pdf') {
+          result = await convertTextToPdf();
+        }
+
+        clearInterval(progressInterval);
+        completeProgress();
+        
+        // Update download section
+        document.getElementById('downloadSection').innerHTML = `
+          <button onclick="downloadFile(window.lastConversionResult.blob, '${result.filename}')" 
+                  class="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300">
+            Download ${result.filename}
+          </button>
+        `;
+        
+        window.lastConversionResult = result;
+        
+        // Update conversion counter
+        dailyConversions++;
+        try {
+          localStorage.setItem('dailyConversions', dailyConversions.toString());
+        } catch (e) {
+          // localStorage not available, use session variable
+          window.sessionConversions = dailyConversions;
+        }
+        document.getElementById('conversionsToday').textContent = dailyConversions;
+        
+      } catch (error) {
+        clearInterval(progressInterval);
+        showError(error.message);
+      }
+    }
+
+    async function convertPdfToText() {
+      const fileInput = document.getElementById('fileInput');
+      if (!fileInput.files[0]) {
+        throw new Error('Please select a PDF file.');
+      }
+
+      const file = fileInput.files[0];
+      const arrayBuffer = await file.arrayBuffer();
+      
+      // Load PDF
+      const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+      let fullText = '';
+      
+      // Extract text from each page
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(' ');
+        fullText += pageText + '\n\n';
+      }
+      
+      const blob = new Blob([fullText], { type: 'text/plain' });
+      const filename = file.name.replace('.pdf', '.txt');
+      
+      return { blob, filename };
+    }
+
+    async function convertDocxToHtml() {
+      const fileInput = document.getElementById('fileInput');
+      if (!fileInput.files[0]) {
+        throw new Error('Please select a DOCX file.');
+      }
+
+      const file = fileInput.files[0];
+      const arrayBuffer = await file.arrayBuffer();
+      
+      // Convert DOCX to HTML using mammoth
+      const result = await mammoth.convertToHtml({ arrayBuffer });
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Converted Document</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+          </style>
+        </head>
+        <body>
+          ${result.value}
+        </body>
+        </html>
+      `;
+      
+      const blob = new Blob([html], { type: 'text/html' });
+      const filename = file.name.replace('.docx', '.html');
+      
+      return { blob, filename };
+    }
+
+    async function convertTextToPdf() {
+      const textInput = document.getElementById('textInput');
+      const text = textInput.value.trim();
+      
+      if (!text) {
+        throw new Error('Please enter some text to convert.');
+      }
+
+      // Create PDF using PDF-lib
+      const pdfDoc = await PDFLib.PDFDocument.create();
+      const page = pdfDoc.addPage([595.28, 841.89]); // A4 size
+      
+      const fontSize = 12;
+      const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+      
+      // Split text into lines that fit on the page
+      const maxWidth = 500;
+      const lines = [];
+      const words = text.split(' ');
+      let currentLine = '';
+      
+      for (const word of words) {
+        const testLine = currentLine + (currentLine ? ' ' : '') + word;
+        const width = font.widthOfTextAtSize(testLine, fontSize);
+        
+        if (width > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      }
+      if (currentLine) lines.push(currentLine);
+      
+      // Add text to PDF
+      let yPosition = 750;
+      for (const line of lines) {
+        if (yPosition < 50) {
+          // Add new page if needed
+          const newPage = pdfDoc.addPage([595.28, 841.89]);
+          yPosition = 750;
+          newPage.drawText(line, {
+            x: 50,
+            y: yPosition,
+            size: fontSize,
+            font: font,
+          });
+        } else {
+          page.drawText(line, {
+            x: 50,
+            y: yPosition,
+            size: fontSize,
+            font: font,
+          });
+        }
+        yPosition -= 20;
+      }
+      
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const filename = 'converted-text.pdf';
+      
+      return { blob, filename };
+    }
+
+    // File input handler
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      if (e.target.files[0]) {
+        const fileName = e.target.files[0].name;
+        const fileNameDisplay = document.getElementById('selectedFileName');
+        fileNameDisplay.textContent = `Selected: ${fileName}`;
+        fileNameDisplay.classList.remove('hidden');
+        document.getElementById('convertBtn').disabled = false;
+      }
+    });
+
+    // Text input handler
+    document.getElementById('textInput').addEventListener('input', function(e) {
+      const convertBtn = document.getElementById('convertBtn');
+      if (currentConversionType === 'text-to-pdf') {
+        convertBtn.disabled = !e.target.value.trim();
+      }
+    });
+
+    // Drag and drop functionality
+    const uploadArea = document.getElementById('uploadArea');
+    
+    uploadArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      uploadArea.classList.add('border-blue-400/70', 'bg-blue-900/20');
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      uploadArea.classList.remove('border-blue-400/70', 'bg-blue-900/20');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      uploadArea.classList.remove('border-blue-400/70', 'bg-blue-900/20');
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        document.getElementById('fileInput').files = files;
+        const fileName = files[0].name;
+        const fileNameDisplay = document.getElementById('selectedFileName');
+        fileNameDisplay.textContent = `Selected: ${fileName}`;
+        fileNameDisplay.classList.remove('hidden');
+        if (currentConversionType !== 'text-to-pdf') {
+          document.getElementById('convertBtn').disabled = false;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
