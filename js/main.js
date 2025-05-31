@@ -2,7 +2,7 @@ import { hideAllAreas, showProgress, completeProgress, showError, downloadFile, 
 import { processPlainTextTool } from './plain-text-tools/plain-text-tools.js';
 import { urlEncode, base64Encode } from './encoding-decoding/encoding-decoding.js';
 import { 
-  gapiLoaded, gisLoaded, handleAuthClick, selectedGoogleDriveFile, downloadGoogleDriveFile,
+  handleAuthClick, selectedGoogleDriveFile, downloadGoogleDriveFile,
   CLIENT_ID, API_KEY, DISCOVERY_DOCS, SCOPES, tokenClient, gapiInited, gisInited, maybeEnableButtons
 } from './google-drive/google-drive.js';
 
@@ -130,41 +130,66 @@ async function convertFile() {
     const textInput = document.getElementById('textInput');
     let results = [];
 
-    if (currentConversionType.includes('text-to-') || currentConversionType === 'markdown-to-html') {
+    const isTextBasedConversion = (type) => {
+      return ['text-to-pdf', 'markdown-to-html', 'csv-to-json', 'json-to-csv', 'xml-to-json', 'html-to-pdf'].includes(type);
+    };
+
+    if (textInput.value.trim() && isTextBasedConversion(currentConversionType)) {
       // Handle text-based conversions
-      if (!textInput.value.trim()) {
-        throw new Error('Please enter some text to convert.');
-      }
       let result;
-      if (currentConversionType === 'text-to-pdf') {
-        result = await convertTextToPdf();
-      } else if (currentConversionType === 'markdown-to-html') {
-        result = await convertMarkdownToHtml();
+      switch (currentConversionType) {
+        case 'text-to-pdf':
+          result = await convertTextToPdf();
+          break;
+        case 'markdown-to-html':
+          result = await convertMarkdownToHtml();
+          break;
+        case 'csv-to-json':
+          result = await convertCsvToJson(textInput.value.trim());
+          break;
+        case 'json-to-csv':
+          result = await convertJsonToCsv(textInput.value.trim());
+          break;
+        case 'html-to-pdf':
+          result = await convertHtmlToPdf(textInput.value.trim());
+          break;
+        case 'xml-to-json':
+          result = await convertXmlToJson(textInput.value.trim());
+          break;
+        default:
+          throw new Error('Unsupported text-based conversion type.');
       }
       results.push(result);
-    } else {
+    } else if (filesToProcess.length > 0) {
       // Handle file-based conversions (including batch)
-      if (filesToProcess.length === 0) {
-        throw new Error('Please select one or more files.');
-      }
-
       for (const file of filesToProcess) {
         let result;
-        if (currentConversionType === 'pdf-to-text') {
-          result = await convertPdfToText(file);
-        } else if (currentConversionType === 'docx-to-html') {
-          result = await convertDocxToHtml(file);
-        } else if (currentConversionType === 'csv-to-json') {
-          result = await convertCsvToJson(file);
-        } else if (currentConversionType === 'json-to-csv') {
-          result = await convertJsonToCsv(file);
-        } else if (currentConversionType === 'html-to-pdf') {
-          result = await convertHtmlToPdf(file);
-        } else if (currentConversionType === 'xml-to-json') {
-          result = await convertXmlToJson(file);
+        switch (currentConversionType) {
+          case 'pdf-to-text':
+            result = await convertPdfToText(file);
+            break;
+          case 'docx-to-html':
+            result = await convertDocxToHtml(file);
+            break;
+          case 'csv-to-json':
+            result = await convertCsvToJson(file);
+            break;
+          case 'json-to-csv':
+            result = await convertJsonToCsv(file);
+            break;
+          case 'html-to-pdf':
+            result = await convertHtmlToPdf(file);
+            break;
+          case 'xml-to-json':
+            result = await convertXmlToJson(file);
+            break;
+          default:
+            throw new Error('Unsupported file-based conversion type.');
         }
         results.push(result);
       }
+    } else {
+      throw new Error('Please select one or more files or enter text to convert.');
     }
 
     clearInterval(progressInterval);
@@ -232,7 +257,7 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
 // Text input handler
 document.getElementById('textInput').addEventListener('input', function(e) {
   const convertBtn = document.getElementById('convertBtn');
-  const textBasedConversions = ['text-to-pdf', 'markdown-to-html'];
+  const textBasedConversions = ['text-to-pdf', 'markdown-to-html', 'csv-to-json', 'json-to-csv', 'xml-to-json', 'html-to-pdf'];
   if (textBasedConversions.includes(currentConversionType)) {
     convertBtn.disabled = !e.target.value.trim();
   }
