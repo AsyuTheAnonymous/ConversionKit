@@ -1,4 +1,4 @@
-import { showError } from './utils.js';
+import { showError } from '../utils/utils.js';
 
 export const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID'; // REPLACE WITH YOUR ACTUAL CLIENT ID
 export const API_KEY = 'YOUR_GOOGLE_API_KEY'; // REPLACE WITH YOUR ACTUAL API KEY IF NEEDED FOR OTHER GOOGLE APIS

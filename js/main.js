@@ -1,10 +1,10 @@
-import { hideAllAreas, showProgress, completeProgress, showError, downloadFile, copyToClipboard } from './utils.js';
-import { processPlainTextTool } from './plain-text-tools.js';
-import { urlEncode, base64Encode } from './encoding-decoding.js';
+import { hideAllAreas, showProgress, completeProgress, showError, downloadFile, copyToClipboard } from './utils/utils.js';
+import { processPlainTextTool } from './plain-text-tools/plain-text-tools.js';
+import { urlEncode, base64Encode } from './encoding-decoding/encoding-decoding.js';
 import { 
   gapiLoaded, gisLoaded, handleAuthClick, selectedGoogleDriveFile, downloadGoogleDriveFile,
   CLIENT_ID, API_KEY, DISCOVERY_DOCS, SCOPES, tokenClient, gapiInited, gisInited, maybeEnableButtons
-} from './google-drive.js';
+} from './google-drive/google-drive.js';
 
 import { convertPdfToText } from './converters/pdf-to-text.js';
 import { convertDocxToHtml } from './converters/docx-to-html.js';
